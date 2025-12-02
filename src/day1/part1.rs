@@ -1,11 +1,13 @@
-use crate::day1::parser::Move;
+use std::str::FromStr;
 
-fn part1(input: &str) -> usize {
+use crate::day1::{INITIAL_VALUE, parser::Direction};
+
+fn solution(input: &str) -> usize {
     input
         .split_whitespace()
-        .map(Move::parse)
-        .scan(50u8, |current, y| {
-            *current = y.apply_op(*current);
+        .map(Direction::from_str)
+        .scan(INITIAL_VALUE, |current, y| {
+            *current = y.unwrap().part1(*current);
             Some(*current)
         })
         .filter(|&x| x == 0)
@@ -26,7 +28,7 @@ L99
 R14
 L82
     ";
-    let result = part1(input);
+    let result = solution(input);
     assert_eq!(result, 3);
 }
 
@@ -34,7 +36,7 @@ L82
 fn answer1() {
     let input = include_str!("./input.txt");
 
-    let result = part1(input);
+    let result = solution(input);
 
     assert_eq!(result, 1071);
 }
