@@ -21,6 +21,7 @@ fn solution(input: &str) -> i32 {
     input
         .split_whitespace()
         .map(Direction::from_str)
+        .map(Result::unwrap)
         .map(handle_direction)
         .scan(INITIAL_VALUE, |current, prev| {
             let (next, rotations) = count_passing_0(*current, prev);
@@ -30,8 +31,8 @@ fn solution(input: &str) -> i32 {
         .sum()
 }
 
-fn handle_direction(direction: Result<Direction, String>) -> i32 {
-    match direction.unwrap() {
+fn handle_direction(direction: Direction) -> i32 {
+    match direction {
         Direction::Left(value) => -value,
         Direction::Right(value) => value,
     }

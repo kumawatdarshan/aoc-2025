@@ -6,8 +6,9 @@ fn solution(input: &str) -> usize {
     input
         .split_whitespace()
         .map(Direction::from_str)
+        .map(Result::unwrap)
         .scan(INITIAL_VALUE, |current, y| {
-            *current = y.unwrap().part1(*current);
+            *current = y.part1(*current);
             Some(*current)
         })
         .filter(|&x| x == 0)
