@@ -1,25 +1,28 @@
 use std::str::FromStr;
 
 use crate::day2::parser::IdRange;
-fn filter_invalid(id: &u64) -> bool {
-    let id_str = id.to_string();
-
-    let half = id_str.len() / 2;
-
-    let f_half = &id_str[..half];
-    let s_half = &id_str[half..];
-
+fn filter_invalid(id: &str) -> bool {
+    // Now takes &str
+    let half = id.len() / 2;
+    let f_half = &id[..half];
+    let s_half = &id[half..];
     f_half == s_half
 }
 
-fn solution(input: &str) -> u64 {
+pub fn solution(input: &str) -> u64 {
+    let mut buffer = itoa::Buffer::new();
+
     input
         .split(',')
-        .map(IdRange::from_str)
-        .map(Result::unwrap)
-        .map(IntoIterator::into_iter)
-        .map(|x| x.filter(filter_invalid).sum::<u64>())
-        .sum()
+        .flat_map(|x| IdRange::from_str(x).unwrap())
+        .fold(0, |acc, curr| {
+            let id_str = buffer.format(curr);
+            if filter_invalid(id_str) {
+                acc + curr
+            } else {
+                acc
+            }
+        })
 }
 
 #[test]

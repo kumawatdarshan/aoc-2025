@@ -1,18 +1,16 @@
 use std::str::FromStr;
 
 use crate::day2::parser::IdRange;
-fn filter_invalid(id: &u64) -> bool {
-    let id_str = id.to_string();
+fn filter_invalid(id_str: &str) -> bool {
     let bytes = id_str.as_bytes();
+    let max_chunk_size = bytes.len() / 2;
 
     // for all possible chunk sizes
-    for size in 1..=(bytes.len() / 2) {
+    for size in 1..=max_chunk_size {
         let mut chunks = bytes.chunks(size);
-
-        if let Some(first) = chunks.next() // extract first chunk
+        let first = chunks.next().unwrap(); // extract first chunk
         // check if they are equal
-            && chunks.all(|c| c == first)
-        {
+        if chunks.all(|c| c == first) {
             return true;
         }
     }
@@ -21,14 +19,20 @@ fn filter_invalid(id: &u64) -> bool {
 }
 
 // i am pretty sure i can improve perf in many areas but i like my functional solutions.
-fn solution(input: &str) -> u64 {
+// and i improved it.
+pub fn solution(input: &str) -> u64 {
+    let mut buffer = itoa::Buffer::new();
     input
         .split(',')
-        .map(IdRange::from_str)
-        .map(Result::unwrap)
-        .map(IntoIterator::into_iter)
-        .map(|x| x.filter(filter_invalid).sum::<u64>())
-        .sum()
+        .flat_map(|x| IdRange::from_str(x).unwrap())
+        .fold(0, |acc, curr| {
+            let id_str = buffer.format(curr);
+            if filter_invalid(id_str) {
+                acc + curr
+            } else {
+                acc
+            }
+        })
 }
 
 #[test]
@@ -39,7 +43,7 @@ fn it_works() {
 }
 
 #[test]
-fn answer1() {
+pub fn answer1() {
     let input = include_str!("./input.txt");
 
     let result = solution(input);
